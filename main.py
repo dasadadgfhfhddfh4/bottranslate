@@ -38,8 +38,7 @@ dp.include_router(router)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Современный способ запуска кода при старте (вместо on_event)"""
-    # Устанавливаем webhook при запуске
+    """Современный способ запуска кода при старте."""
     webhook_url = os.getenv("WEBHOOK_URL")
     if webhook_url:
         webhook_info = await bot.get_webhook_info()
@@ -47,11 +46,10 @@ async def lifespan(app: FastAPI):
             await bot.set_webhook(url=webhook_url)
             logging.info(f"✅ Webhook установлен: {webhook_url}")
     else:
-        logging.error("❌ WEBHOOK_URL не задан!")
+        logging.error(" WEBHOOK_URL не задан!")
     
     yield  # Здесь приложение работает
     
-    # При остановке — удаляем webhook
     await bot.delete_webhook()
     await bot.session.close()
     logging.info("Bot stopped")
@@ -75,7 +73,7 @@ async def webhook(request: Request):
     return {"ok": True}
 
 
+# ✅ ИСПРАВЛЕНО: добавлены двойные подчёркивания
 if __name__ == "__main__":
-    # ✅ КРИТИЧНО: читаем порт из переменной окружения Render
     port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)

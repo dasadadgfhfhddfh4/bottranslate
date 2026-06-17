@@ -1,10 +1,9 @@
-"""Инлайн-клавиатуры — убраны лишние пробелы."""
+"""Инлайн-клавиатуры."""
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from translator import LANGUAGES
 
 
 def get_main_keyboard() -> InlineKeyboardMarkup:
-    """Главное меню."""
     buttons = [
         [InlineKeyboardButton(text="🌍 Начать перевод", callback_data="start_translate")],
         [
@@ -17,7 +16,6 @@ def get_main_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_target_language_keyboard() -> InlineKeyboardMarkup:
-    """Выбор целевого языка с флагами."""
     buttons = []
     lang_items = list(LANGUAGES.items())
     for i in range(0, len(lang_items), 2):
@@ -30,7 +28,6 @@ def get_target_language_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_result_keyboard() -> InlineKeyboardMarkup:
-    """После перевода."""
     buttons = [
         [
             InlineKeyboardButton(text="🔄 Новый перевод", callback_data="start_translate"),
@@ -42,7 +39,6 @@ def get_result_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_source_language_keyboard() -> InlineKeyboardMarkup:
-    """Ручной выбор языка оригинала."""
     buttons = []
     lang_items = list(LANGUAGES.items())
     for i in range(0, len(lang_items), 2):
@@ -50,5 +46,5 @@ def get_source_language_keyboard() -> InlineKeyboardMarkup:
         for code, name in lang_items[i:i+2]:
             row.append(InlineKeyboardButton(text=name, callback_data=f"manual_source_{code}"))
         buttons.append(row)
-    buttons.append([InlineKeyboardButton(text="️ Отмена", callback_data="back_to_menu")])
+    buttons.append([InlineKeyboardButton(text="◀️ Отмена", callback_data="back_to_menu")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)

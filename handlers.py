@@ -1,4 +1,4 @@
-"""Обработчики команд и callback-запросов."""
+"""Обработчики команд."""
 import asyncio
 import logging
 from aiogram import Router, F
@@ -36,20 +36,11 @@ async def safe_edit(callback: CallbackQuery, text: str, reply_markup=None) -> No
         logger.error(f"Ошибка редактирования: {e}")
 
 
-async def typing_indicator(message: Message, stop_event: asyncio.Event) -> None:
-    while not stop_event.is_set():
-        try:
-            await message.bot.send_chat_action(message.chat.id, "typing")
-            await asyncio.sleep(4)
-        except Exception:
-            break
-
-
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
     saved_lang = user_preferences.get(message.from_user.id, {}).get("target_lang")
-    saved_text = f"\n\n💾 <b>Твой последний язык:</b> {LANGUAGES.get(saved_lang)}" if saved_lang else ""
+    saved_text = f"\n\n💾 Твой последний язык: {LANGUAGES.get(saved_lang)}" if saved_lang else ""
 
     welcome_text = (
         "👋 <b>Привет!</b> Я — <b>TranslatorBot</b> \n\n"
@@ -82,7 +73,7 @@ async def start_translation(callback: CallbackQuery, state: FSMContext) -> None:
         await state.set_state(TranslationStates.waiting_for_text)
         await safe_edit(
             callback,
-            f"✍️ <b>Отправь текст для перевода</b>\n\n"
+            f"️ <b>Отправь текст для перевода</b>\n\n"
             f"🎯 Перевожу на: <b>{LANGUAGES[saved_lang]}</b>\n"
             f"🕵️ Язык оригинала определю автоматически!\n\n"
             f"💡 <i>Хочешь другой язык? Кнопка «Сменить язык»</i>"
@@ -122,7 +113,7 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext) -> None:
 
     await safe_edit(
         callback,
-        f"🏠 <b>Главное меню</b>{saved_text}\n\n"
+        f" <b>Главное меню</b>{saved_text}\n\n"
         f"Выбери действие 👇",
         get_main_keyboard()
     )
@@ -133,7 +124,7 @@ async def show_languages(callback: CallbackQuery) -> None:
     await callback.answer()
     await safe_edit(
         callback,
-        f" <b>Поддерживаемые языки</b>\n\n{get_languages_list_text()}\n\n"
+        f"🌍 <b>Поддерживаемые языки</b>\n\n{get_languages_list_text()}\n\n"
         f"💡 <i>Язык оригинала определяется автоматически!</i>",
         get_main_keyboard()
     )
@@ -143,16 +134,16 @@ async def show_languages(callback: CallbackQuery) -> None:
 async def show_help(callback: CallbackQuery) -> None:
     await callback.answer()
     help_text = (
-        " <b>Как пользоваться</b>\n\n"
+        "📖 <b>Как пользоваться</b>\n\n"
         "1️⃣ Нажми <b>«Начать перевод»</b>\n"
         "2️⃣ Выбери язык (1 раз — сохранится!)\n"
-        "3️⃣ Отправь текст\n"
+        "3️ Отправь текст\n"
         "4️⃣ Получи перевод! 🎉\n\n"
         "🔄 <b>Быстрые переводы:</b>\n"
         "После первого выбора языка — сразу отправляй текст!\n\n"
-        " <b>Неверный язык?</b>\n"
+        "❓ <b>Неверный язык?</b>\n"
         "После перевода нажми «Неверный язык» — выбери вручную\n\n"
-        "💡 <b>Совет:</b> максимум 500 символов за раз"
+        " <b>Совет:</b> максимум 500 символов за раз"
     )
     await safe_edit(callback, help_text, get_main_keyboard())
 
@@ -168,7 +159,6 @@ async def process_target_language(callback: CallbackQuery, state: FSMContext) ->
     user_id = callback.from_user.id
     if user_id not in user_preferences:
         user_preferences[user_id] = {}
-    # ✅ ИСПРАВЛЕНО: убран лишний пробел
     user_preferences[user_id]["target_lang"] = target_lang
 
     await state.update_data(target_lang=target_lang)
@@ -176,7 +166,7 @@ async def process_target_language(callback: CallbackQuery, state: FSMContext) ->
     await safe_edit(
         callback,
         f"✍️ <b>Отправь текст для перевода</b>\n\n"
-        f"🎯 Перевожу на: <b>{LANGUAGES[target_lang]}</b>\n"
+        f" Перевожу на: <b>{LANGUAGES[target_lang]}</b>\n"
         f"🕵️ Язык оригинала определю сам!\n\n"
         f"✅ <i>Язык сохранён — в следующий раз сразу к вводу!</i>"
     )
@@ -205,9 +195,6 @@ async def process_translation(message: Message, state: FSMContext) -> None:
 
     await state.update_data(last_text=text, target_lang=target_lang)
 
-    stop_event = asyncio.Event()
-    typing_task = asyncio.create_task(typing_indicator(message, stop_event))
-
     try:
         translated, status, detected_lang, _ = await translate_text(text, target_lang)
         
@@ -223,13 +210,9 @@ async def process_translation(message: Message, state: FSMContext) -> None:
             await message.answer(result_text, reply_markup=get_result_keyboard())
         else:
             await message.answer(f"❌ <b>Ошибка перевода</b>\n\n{translated}\n\nПопробуй ещё раз 🔄", reply_markup=get_main_keyboard())
-    finally:
-        stop_event.set()
-        typing_task.cancel()
-        try:
-            await typing_task
-        except asyncio.CancelledError:
-            pass
+    except Exception as e:
+        logger.error(f"Translation error: {e}")
+        await message.answer("❌ Произошла ошибка. Попробуй ещё раз.", reply_markup=get_main_keyboard())
 
     await state.set_state(None)
 
@@ -264,14 +247,10 @@ async def process_manual_source(callback: CallbackQuery, state: FSMContext) -> N
     target_lang = data.get("pending_target")
 
     if not text or not target_lang:
-        await callback.answer("️ Сессия устарела", show_alert=True)
+        await callback.answer("⚠️ Сессия устарела", show_alert=True)
         await state.clear()
         await callback.message.answer("🔄 <b>Начни перевод заново</b>", reply_markup=get_main_keyboard())
         return
-
-    stop_event = asyncio.Event()
-    # ✅ ИСПРАВЛЕНО: убран лишний пробел в stop_event
-    typing_task = asyncio.create_task(typing_indicator(callback.message, stop_event))
 
     try:
         wait_msg = await callback.message.answer("🔄 Перевожу с указанным языком...")
@@ -280,19 +259,15 @@ async def process_manual_source(callback: CallbackQuery, state: FSMContext) -> N
         if status == "success":
             result_text = (
                 f"✅ <b>Готово!</b>\n\n"
-                f"🔄 <b>{LANGUAGES[source_lang]}</b> ➜ <b>{LANGUAGES[target_lang]}</b>\n\n"
+                f" <b>{LANGUAGES[source_lang]}</b> ➜ <b>{LANGUAGES[target_lang]}</b>\n\n"
                 f"<code>{translated}</code>"
             )
             await wait_msg.edit_text(result_text, reply_markup=get_result_keyboard())
         else:
             await wait_msg.edit_text(f"❌ {translated}", reply_markup=get_main_keyboard())
-    finally:
-        stop_event.set()
-        typing_task.cancel()
-        try:
-            await typing_task
-        except asyncio.CancelledError:  # ✅ ИСПРАВЛЕНО: убран лишний пробел
-            pass
+    except Exception as e:
+        logger.error(f"Manual translation error: {e}")
+        await callback.message.answer("❌ Ошибка перевода.", reply_markup=get_main_keyboard())
 
     await state.set_state(None)
 
@@ -300,26 +275,13 @@ async def process_manual_source(callback: CallbackQuery, state: FSMContext) -> N
 @router.message(F.content_type.in_({"photo", "sticker", "voice", "video", "audio", "document", "animation", "location", "contact"}))
 async def handle_non_text_message(message: Message, state: FSMContext) -> None:
     await state.clear()
-    content_map = {
-        "photo": ("📸 Фото", "Отправь текстом — я переведу!"),
-        "sticker": ("🎭 Стикер", "Стикеры не перевожу 😄 Отправь текст!"),
-        "voice": ("🎤 Голосовое", "Голос не перевожу. Отправь текстом!"),
-        "video": ("🎥 Видео", "Видео не перевожу. Напиши текстом!"),
-        "audio": ("🎵 Аудио", "Аудио не перевожу. Отправь текстом!"),
-        "document": ("📎 Файл", "Файлы не перевожу. Отправь текст!"),
-        "animation": ("🎬 GIF", "GIF не перевожу. Напиши текстом!"),
-        "location": ("📍 Геолокация", "Локацию не перевожу. Отправь текст!"),
-        "contact": ("👤 Контакт", "Контакты не перевожу. Напиши текстом!"),
-    }
-    emoji_title, hint = content_map.get(message.content_type, ("⚠️ Контент", "Отправь текст!"))
-    response = f"{emoji_title}\n\n❌ <b>Я не могу это перевести</b>\n\n✍️ <b>Введи текст для перевода</b>\n\n💡 {hint}"
-    await message.answer(response, reply_markup=get_main_keyboard())
+    await message.answer("️ Я работаю только с текстом. Отправь текст для перевода!", reply_markup=get_main_keyboard())
 
 
 @router.message(~F.text)
 async def handle_unknown_content(message: Message, state: FSMContext) -> None:
     await state.clear()
-    await message.answer("⚠️ <b>Неизвестный тип сообщения</b>\n\n✍️ <b>Введи текст для перевода</b> 📝", reply_markup=get_main_keyboard())
+    await message.answer("⚠️ Неизвестный тип сообщения. Отправь текст!", reply_markup=get_main_keyboard())
 
 
 @router.error()

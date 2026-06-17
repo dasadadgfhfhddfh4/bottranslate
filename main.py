@@ -38,7 +38,6 @@ dp.include_router(router)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Современный способ запуска кода при старте."""
     webhook_url = os.getenv("WEBHOOK_URL")
     if webhook_url:
         webhook_info = await bot.get_webhook_info()
@@ -46,9 +45,9 @@ async def lifespan(app: FastAPI):
             await bot.set_webhook(url=webhook_url)
             logging.info(f"✅ Webhook установлен: {webhook_url}")
     else:
-        logging.error(" WEBHOOK_URL не задан!")
+        logging.error("❌ WEBHOOK_URL не задан!")
     
-    yield  # Здесь приложение работает
+    yield
     
     await bot.delete_webhook()
     await bot.session.close()
@@ -60,20 +59,17 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 async def healthcheck():
-    """Render проверяет этот эндпоинт"""
     return {"status": "running", "bot": "translator"}
 
 
 @app.post("/webhook")
 async def webhook(request: Request):
-    """Принимает обновления от Telegram"""
     data = await request.json()
     update = Update(**data)
     await dp.feed_update(bot=bot, update=update)
     return {"ok": True}
 
 
-# ✅ ИСПРАВЛЕНО: добавлены двойные подчёркивания
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)

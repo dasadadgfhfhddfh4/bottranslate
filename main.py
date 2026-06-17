@@ -1,48 +1,81 @@
-"""TranslatorBot - точка входа."""
-import asyncio
+"""TranslatorBot - Webhook версия для Render."""
 import logging
+import os
 import sys
-from os import getenv
+from contextlib import asynccontextmanager
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Update
 from dotenv import load_dotenv
+from fastapi import FastAPI, Request
+import uvicorn
 
 from handlers import router
 
+load_dotenv()
 
-async def main() -> None:
-    load_dotenv()
-    bot_token = getenv("BOT_TOKEN")
+bot_token = os.getenv("BOT_TOKEN")
+if not bot_token or bot_token == "YOUR_BOT_TOKEN_HERE":
+    print("[!] BOT_TOKEN не найден!")
+    sys.exit(1)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+bot = Bot(
+    token=bot_token,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
+
+dp = Dispatcher(storage=MemoryStorage())
+dp.include_router(router)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Современный способ запуска кода при старте (вместо on_event)"""
+    # Устанавливаем webhook при запуске
+    webhook_url = os.getenv("WEBHOOK_URL")
+    if webhook_url:
+        webhook_info = await bot.get_webhook_info()
+        if webhook_info.url != webhook_url:
+            await bot.set_webhook(url=webhook_url)
+            logging.info(f"✅ Webhook установлен: {webhook_url}")
+    else:
+        logging.error("❌ WEBHOOK_URL не задан!")
     
-    if not bot_token or bot_token == "YOUR_BOT_TOKEN_HERE":
-        print("[!] BOT_TOKEN не найден! Отредактируй .env файл")
-        sys.exit(1)
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-
-    bot = Bot(
-        token=bot_token,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-    )
+    yield  # Здесь приложение работает
     
-    dp = Dispatcher(storage=MemoryStorage())
-    dp.include_router(router)
+    # При остановке — удаляем webhook
+    await bot.delete_webhook()
+    await bot.session.close()
+    logging.info("Bot stopped")
 
-    await bot.delete_webhook(drop_pending_updates=True)
-    print("[*] Bot started!")
-    
-    try:
-        await dp.start_polling(bot)
-    finally:
-        await bot.session.close()
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/")
+async def healthcheck():
+    """Render проверяет этот эндпоинт"""
+    return {"status": "running", "bot": "translator"}
+
+
+@app.post("/webhook")
+async def webhook(request: Request):
+    """Принимает обновления от Telegram"""
+    data = await request.json()
+    update = Update(**data)
+    await dp.feed_update(bot=bot, update=update)
+    return {"ok": True}
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # ✅ КРИТИЧНО: читаем порт из переменной окружения Render
+    port = int(os.getenv("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)

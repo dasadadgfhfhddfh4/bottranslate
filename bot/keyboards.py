@@ -1,6 +1,6 @@
 """Инлайн-клавиатуры."""
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from translator import LANGUAGES
+from bot.translator import LANGUAGES
 
 
 def get_main_keyboard() -> InlineKeyboardMarkup:

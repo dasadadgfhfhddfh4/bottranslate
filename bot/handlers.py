@@ -8,11 +8,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.exceptions import TelegramBadRequest
 
-from keyboards import (
+from bot.keyboards import (
     get_main_keyboard, get_target_language_keyboard,
     get_result_keyboard, get_source_language_keyboard
 )
-from translator import translate_text, LANGUAGES, get_languages_list_text
+from bot.translator import translate_text, LANGUAGES, get_languages_list_text
 
 router = Router()
 logger = logging.getLogger(__name__)

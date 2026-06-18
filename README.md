@@ -1,95 +1,58 @@
-# 🌍 TranslatorBot - Умный Telegram Переводчик
-
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Aiogram](https://img.shields.io/badge/Aiogram-3.x-green.svg)](https://docs.aiogram.dev/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Code Style](https://img.shields.io/badge/Code%20Style-PEP%208-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg)]()
+# 🌍 TranslatorBot — Умный Telegram Переводчик
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Translation-Multiple%20APIs-red?style=for-the-badge" alt="Translation APIs">
-  <br>
-  <strong>🤖 Мощный бот с автоопределением языка и 6 fallback API</strong>
+
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Aiogram](https://img.shields.io/badge/Aiogram-3.x-00A8E8?style=for-the-badge&logo=telegram&logoColor=white)](https://docs.aiogram.dev/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dasadadgfhfhddfh4/bottranslate)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+![Stars](https://img.shields.io/github/stars/dasadadgfhfhddfh4/bottranslate?style=for-the-badge&color=gold)
+![Forks](https://img.shields.io/github/forks/dasadadgfhfhddfh4/bottranslate?style=for-the-badge&color=blue)
+![Issues](https://img.shields.io/github/issues/dasadadgfhfhddfh4/bottranslate?style=for-the-badge&color=orange)
+
+**🤖 Мощный бот-переводчик с автоопределением языка и 6 API**
+
+[Особенности](#особенности) • [Установка](#установка) • [Использование](#использование) • [API](#api-переводчиков) • [Roadmap](#roadmap)
+
 </div>
 
 ---
 
-## 📋 Оглавление
+## ✨ <a id="особенности"></a>Особенности
 
-- [✨ Особенности](#-особенности)
-- [🚀 Быстрый старт](#-быстрый-старт)
-- [📖 Документация](#-документация)
-- [🏗 Структура проекта](#-структура-проекта)
-- [⚙️ Конфигурация](#️-конфигурация)
-- [🔧 API Переводчиков](#-api-переводчиков)
-- [📊 Поддерживаемые языки](#-поддерживаемые-языки)
-- [💡 Примеры использования](#-примеры-использования)
-- [🛠 Расширение функционала](#-расширение-функционала)
-- [📝 Roadmap](#-roadmap)
-- [🤝 Вклад](#-вклад)
-- [📜 Лицензия](#-лицензия)
-- [👨‍ Автор](#-автор)
+| Функция | Описание |
+|---------|----------|
+| 🔄 **Автоопределение** | Автоматически определяет язык исходного текста |
+| 🌐 **6 API** | Fallback система (если один не работает — использует следующий) |
+| 💾 **Сохранение** | Запоминает выбранный язык для удобства |
+| ⚡ **Async** | Асинхронная архитектура на aiogram 3.x |
+| 🎯 **Inline UI** | Удобные кнопки прямо в чате |
+| 🛡 **Безопасность** | Token в `.env` (не попадает в Git) |
 
 ---
 
-## ✨ Особенности
+## 🛠 <a id="технологии"></a>Технологии
 
 <div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="https://img.icons8.com/color/96/000000/translate.png" width="64" alt="Auto Translate"/>
-        <br><strong>🔄 Автоопределение</strong><br>
-        <small>Язык определяется автоматически</small>
-      </td>
-      <td align="center">
-        <img src="https://img.icons8.com/color/96/000000/api-settings.png" width="64" alt="Multiple APIs"/>
-        <br><strong>🌐 6 API</strong><br>
-        <small>Fallback система переводчиков</small>
-      </td>
-      <td align="center">
-        <img src="https://img.icons8.com/color/96/000000/save.png" width="64" alt="Save Preferences"/>
-        <br><strong>💾 Сохранение</strong><br>
-        <small>Язык сохраняется для удобства</small>
-      </td>
-      <td align="center">
-        <img src="https://img.icons8.com/color/96/000000/smartphone.png" width="64" alt="Async"/>
-        <br><strong>⚡ Async</strong><br>
-        <small>Асинхронная архитектура</small>
-      </td>
-    </tr>
-  </table>
+
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Aiogram](https://img.shields.io/badge/Aiogram-3.x-green?style=for-the-badge&logo=telegram&logoColor=white)](https://docs.aiogram.dev/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-Settings-red?style=for-the-badge&logo=python&logoColor=white)](https://docs.pydantic.dev/)
+[![AsyncIO](https://img.shields.io/badge/AsyncIO-Built--in-yellow?style=for-the-badge&logo=python&logoColor=white)](https://docs.python.org/3/library/asyncio.html)
+
+[![Git](https://img.shields.io/badge/Git-Version%20Control-F05032?style=for-the-badge&logo=git&logoColor=white)](https://git-scm.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Hosting-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
+[![VS Code](https://img.shields.io/badge/VS%20Code-Editor-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/)
+
 </div>
-
-### 🔥 Ключевые преимущества
-
-✅ **Умная система fallback** — если один API не работает, автоматически используется следующий  
-✅ **Pydantic Settings** — типизированная конфигурация с валидацией  
-✅ **FSM (Finite State Machine)** — корректное управление состояниями диалога  
-✅ **Inline клавиатуры** — удобный интерфейс выбора языков  
-✅ **Обработка ошибок** — логирование и graceful degradation  
-✅ **Production Ready** — готов к деплою на продакшен  
 
 ---
 
-## 🚀 Быстрый старт
+## 📥 <a id="установка"></a>Установка
 
-### 📥 Установка за 2 минуты
+### 1️⃣ Клонирование репозитория
 
 ```bash
-# 1. Клонируй репозиторий
 git clone https://github.com/dasadadgfhfhddfh4/bottranslate.git
 cd bottranslate
-
-# 2. Создай виртуальное окружение
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. Установи зависимости
-pip install -r requirements.txt
-
-# 4. Настрой токен
-echo "BOT_TOKEN=your_token_here" > .env
-
-# 5. Запусти бота
-python -m bot.main

@@ -9,6 +9,8 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
+from bot.config import get_settings
+
 # Импортируем твои хендлеры (убедись, что файл handlers.py существует)
 from bot.handlers import router
 
@@ -17,7 +19,12 @@ load_dotenv()
 
 # --- 1. Конфигурация и инициализация ---
 
-bot_token = os.getenv("BOT_TOKEN")
+try:
+    settings = get_settings()
+    bot_token = settings.bot_token.get_secret_value()
+except Exception:
+    bot_token = os.getenv("BOT_TOKEN") or os.getenv("TELEGRAM_BOT_TOKEN")
+
 if not bot_token:
     print("❌ [!] BOT_TOKEN не найден! Создай файл .env и добавь туда BOT_TOKEN=твой_токен")
     sys.exit(1)

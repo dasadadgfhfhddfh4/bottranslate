@@ -1,6 +1,6 @@
 # config.py
 from functools import lru_cache
-from pydantic import Field, SecretStr
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,12 +9,12 @@ class Settings(BaseSettings):
     Конфигурация Telegram-бота.
     Читает переменные из окружения и файла .env
     """
-    
+
     # 🔐 Токен бота. Используем SecretStr для безопасности!
     # Если в логах случайно выведется settings, токен будет скрыт звездочками.
     bot_token: SecretStr = Field(
         ..., 
-        alias="BOT_TOKEN",
+        validation_alias=AliasChoices("BOT_TOKEN", "TELEGRAM_BOT_TOKEN"),
         min_length=40,  # Telegram-токены длинные, это базовая защита от опечаток
         description="Telegram Bot Token from @BotFather"
     )
@@ -30,6 +30,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",  # Игнорируем переменные из .env, которых нет в классе
     )
+
 
 
 @lru_cache(maxsize=None)

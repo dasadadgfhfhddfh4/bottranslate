@@ -10,7 +10,10 @@ def get_main_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="📋 Языки", callback_data="languages"),
             InlineKeyboardButton(text="🔄 Сменить язык", callback_data="change_target")
         ],
-        [InlineKeyboardButton(text="❓ Помощь", callback_data="help")]
+        [
+            InlineKeyboardButton(text="❓ Помощь", callback_data="help"),
+            InlineKeyboardButton(text="ℹ️ О боте", callback_data="about_bot")
+        ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 

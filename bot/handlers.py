@@ -148,6 +148,27 @@ async def show_help(callback: CallbackQuery) -> None:
     await safe_edit(callback, help_text, get_main_keyboard())
 
 
+@router.callback_query(F.data == "about_bot")
+async def show_about_bot(callback: CallbackQuery) -> None:
+    await callback.answer()
+    about_text = (
+        "🤖 <b>О боте</b>\n\n"
+        "Этот бот помогает переводить текст быстро и удобно прямо в Telegram.\n\n"
+        "✨ <b>Что умеет:</b>\n"
+        "• Переводить текст на выбранный язык\n"
+        "• Определять язык оригинала автоматически\n"
+        "• Запоминать предпочтительный язык для следующих переводов\n"
+        "• Позволять вручную исправить язык, если определение оказалось неверным\n"
+        "• Предлагать простой интерфейс через кнопки\n\n"
+        "💡 <b>Преимущества:</b>\n"
+        "• Быстрое общение без лишних действий\n"
+        "• Не нужно каждый раз заново выбирать язык\n"
+        "• Удобно для повседневных переводов\n"
+        "• Простая навигация и понятные кнопки"
+    )
+    await safe_edit(callback, about_text, get_main_keyboard())
+
+
 @router.callback_query(TranslationStates.choosing_target, F.data.startswith("target_"))
 async def process_target_language(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
